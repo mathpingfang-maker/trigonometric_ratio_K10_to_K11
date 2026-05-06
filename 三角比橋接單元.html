@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>從三角比到三角函數｜橋接單元</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+/* ══════════════════════════════════════
+   基礎樣式
+══════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:14px}
+a{color:#185FA5}
+
+/* ══════════════════════════════════════
+   版面
+══════════════════════════════════════ */
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+.sidebar{background:#fff;border-right:0.5px solid #ddd;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.main{display:flex;flex-direction:column;min-height:100vh}
+
+/* ══════════════════════════════════════
+   側欄
+══════════════════════════════════════ */
+.sb-header{padding:16px;border-bottom:0.5px solid #eee}
+.bridge-badge{font-size:10px;font-weight:600;background:#E6F1FB;color:#0C447C;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px;letter-spacing:.04em}
+.sb-title{font-size:13px;font-weight:600;line-height:1.4;color:#1a1a1a}
+.sb-sub{font-size:11px;color:#888;margin-top:2px}
+.prog-bar{margin-top:10px;height:4px;background:#eee;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:#1D9E75;border-radius:2px;transition:width .4s}
+.prog-txt{font-size:11px;color:#888;margin-top:4px}
+
+.unit-nav{padding:8px 0;flex:1}
+.unit-btn{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;color:#666;border-left:2px solid transparent;transition:all .15s;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;line-height:1.4}
+.unit-btn:hover{background:#f9f9f7;color:#1a1a1a}
+.unit-btn.active{background:#f0f7ff;color:#185FA5;border-left-color:#185FA5;font-weight:600}
+.unit-btn.done{color:#888}
+.u-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;transition:all .2s}
+.u-dot.is-active{background:#185FA5;border-color:#185FA5}
+.u-dot.is-done{background:#1D9E75;border-color:#1D9E75}
+
+/* ══════════════════════════════════════
+   頂部欄
+══════════════════════════════════════ */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:0.5px solid #eee;background:#fff;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:12px;color:#888}
+.breadcrumb b{color:#1a1a1a;font-weight:500}
+.mode-tag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:#E6F1FB;color:#0C447C}
+.mode-tag.practice-mode{background:#E1F5EE;color:#085041}
+
+/* ══════════════════════════════════════
+   頁面切換容器
+══════════════════════════════════════ */
+.page{display:none;flex:1;flex-direction:column}
+.page.active{display:flex}
+
+/* ══════════════════════════════════════
+   講義內容
+══════════════════════════════════════ */
+.lesson-scroll{flex:1;padding:28px 32px;max-width:780px}
+.lesson-title{font-size:20px;font-weight:600;margin-bottom:4px;color:#1a1a1a}
+.lesson-meta{font-size:12px;color:#888;margin-bottom:24px;display:flex;gap:12px}
+
+.sec-title{font-size:15px;font-weight:600;margin:24px 0 10px;padding-bottom:7px;border-bottom:0.5px solid #eee;color:#1a1a1a}
+.prose{font-size:13px;line-height:1.9;margin-bottom:10px;color:#1a1a1a}
+.math-block{background:#f8f8f5;border:0.5px solid #e5e5e0;border-radius:8px;padding:14px 18px;margin:12px 0;text-align:center;overflow-x:auto}
+.example-box{background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:8px;padding:13px 16px;margin:12px 0}
+.example-box .lbl{font-size:10px;font-weight:600;color:#0C447C;margin-bottom:5px;letter-spacing:.06em}
+.example-box .body{font-size:13px;line-height:1.8;color:#042C53;white-space:pre-line}
+.note-box{background:#FAEEDA;border:0.5px solid #FAC775;border-radius:8px;padding:13px 16px;margin:12px 0}
+.note-box .lbl{font-size:10px;font-weight:600;color:#633806;margin-bottom:5px;letter-spacing:.06em}
+.note-box .body{font-size:13px;line-height:1.8;color:#412402}
+.steps-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.step-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.75}
+.step-num{width:24px;height:24px;border-radius:50%;background:#185FA5;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+
+.ratio-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.ratio-table th{background:#185FA5;color:#fff;padding:9px 12px;font-weight:500;text-align:center;border:0.5px solid #0C447C}
+.ratio-table td{padding:9px 12px;text-align:center;border:0.5px solid #eee}
+.ratio-table tr:nth-child(odd) td{background:#f8f8f5}
+
+.interact-wrap{background:#f8f8f5;border:0.5px solid #e5e5e0;border-radius:10px;padding:16px;margin:12px 0}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.slider-row label{font-size:12px;color:#666;min-width:50px}
+.slider-row input[type=range]{flex:1}
+.slider-row span{font-size:14px;font-weight:600;color:#185FA5;min-width:40px}
+.tri-vals{font-size:13px;line-height:2.1;margin-top:8px}
+
+.finish-banner{background:#E1F5EE;border:0.5px solid #9FE1CB;border-radius:8px;padding:12px 16px;margin:20px 0;font-size:13px;color:#085041;display:flex;align-items:center;gap:10px}
+
+/* ══════════════════════════════════════
+   底部導航
+══════════════════════════════════════ */
+.lesson-footer{border-top:0.5px solid #eee;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff;flex-shrink:0}
+.btn{border:0.5px solid #ccc;border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;background:transparent;color:#1a1a1a;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn:hover{background:#f5f5f0}
+.btn:disabled{opacity:.4;cursor:default;pointer-events:none}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-green{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-green:hover{background:#0F6E56}
+.btn-danger{background:transparent;border-color:#E24B4A;color:#A32D2D}
+.btn-danger:hover{background:#FCEBEB}
+
+/* ══════════════════════════════════════
+   練習題介面
+══════════════════════════════════════ */
+.practice-header{background:#f8f8f5;border-bottom:0.5px solid #eee;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.q-dots{display:flex;gap:5px}
+.q-dot{width:9px;height:9px;border-radius:50%;background:#ddd;transition:all .2s}
+.q-dot.q-current{background:#185FA5;width:22px;border-radius:4px}
+.q-dot.q-correct{background:#1D9E75}
+.q-dot.q-wrong{background:#E24B4A}
+.q-counter{font-size:12px;color:#888}
+
+.practice-body{flex:1;padding:32px;max-width:680px}
+.q-num{font-size:10px;font-weight:600;color:#888;letter-spacing:.08em;margin-bottom:6px}
+.q-type-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;display:inline-block;margin-bottom:12px}
+.badge-single{background:#E6F1FB;color:#0C447C}
+.badge-multi{background:#E1F5EE;color:#085041}
+.badge-fill{background:#EEEDFE;color:#3C3489}
+.badge-tf{background:#FAEEDA;color:#633806}
+.badge-match{background:#FAECE7;color:#712B13}
+.badge-steps{background:#F1EFE8;color:#444441}
+.q-text{font-size:15px;font-weight:500;margin-bottom:18px;line-height:1.65;color:#1a1a1a}
+
+/* 選項 */
+.options{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:0.5px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s;background:#fff}
+.option:hover:not(.disabled){border-color:#999;background:#f9f9f7}
+.option.selected{border-color:#185FA5;background:#E6F1FB;color:#0C447C}
+.option.correct{border-color:#1D9E75;background:#E1F5EE;color:#085041}
+.option.wrong{border-color:#E24B4A;background:#FCEBEB;color:#791F1F}
+.option.disabled{cursor:default}
+.opt-key{width:22px;height:22px;border-radius:50%;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;transition:all .15s}
+.option.selected .opt-key{background:#185FA5;border-color:#185FA5;color:#fff}
+.option.correct .opt-key{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.option.wrong .opt-key{background:#E24B4A;border-color:#E24B4A;color:#fff}
+
+/* 填空 */
+.fill-input{border:0.5px solid #ccc;border-radius:8px;padding:10px 14px;font-size:14px;width:100%;max-width:320px;outline:none;display:block;margin-bottom:16px;background:#fff;color:#1a1a1a}
+.fill-input:focus{border-color:#185FA5}
+.fill-input.correct{border-color:#1D9E75;background:#E1F5EE;color:#085041}
+.fill-input.wrong{border-color:#E24B4A;background:#FCEBEB;color:#791F1F}
+
+/* 是非 */
+.tf-row{display:flex;gap:10px;margin-bottom:16px;max-width:300px}
+.tf-btn{flex:1;padding:11px;border:0.5px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;text-align:center;background:#fff;color:#1a1a1a;transition:all .15s}
+.tf-btn:hover:not(.disabled){background:#f5f5f0}
+.tf-btn.selected{background:#E6F1FB;border-color:#185FA5;color:#0C447C}
+.tf-btn.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.tf-btn.wrong{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+
+/* 配對題佔位符 */
+.placeholder-box{border:0.5px dashed #ccc;border-radius:8px;padding:20px;text-align:center;color:#aaa;font-size:13px;margin-bottom:16px;background:#fafafa}
+.placeholder-box b{color:#888;display:block;margin-bottom:4px;font-size:14px}
+
+/* 計算步驟題 */
+.steps-q{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.step-q-item{display:flex;align-items:center;gap:10px;font-size:13px}
+.step-q-label{color:#888;min-width:60px;font-size:12px}
+.step-q-input{border:0.5px solid #ccc;border-radius:6px;padding:7px 12px;font-size:13px;flex:1;max-width:280px;outline:none;background:#fff;color:#1a1a1a}
+.step-q-input:focus{border-color:#185FA5}
+.step-q-input.correct{border-color:#1D9E75;background:#E1F5EE;color:#085041}
+.step-q-input.wrong{border-color:#E24B4A;background:#FCEBEB;color:#791F1F}
+.step-q-hint{font-size:11px;color:#888;font-style:italic}
+
+/* 回饋 */
+.feedback{display:none;padding:11px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.65}
+.feedback.show{display:block}
+.feedback.ok{background:#E1F5EE;border:0.5px solid #9FE1CB;color:#085041}
+.feedback.err{background:#FCEBEB;border:0.5px solid #F7C1C1;color:#791F1F}
+
+.practice-footer{border-top:0.5px solid #eee;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff;flex-shrink:0}
+
+/* 結果頁 */
+.result-page{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;gap:10px}
+.result-score{font-size:56px;font-weight:600;color:#185FA5;line-height:1}
+.result-sub{font-size:14px;color:#888}
+.result-msg{font-size:15px;color:#1a1a1a;margin-top:4px}
+.result-btns{display:flex;gap:10px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ══════════════════════════════════
+     側欄
+══════════════════════════════════ -->
+<div class="sidebar">
+  <div class="sb-header">
+    <div class="bridge-badge">橋接單元</div>
+    <div class="sb-title">從三角比到三角函數</div>
+    <div class="sb-sub">國三升高一銜接教材</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 5 單元完成</div>
+  </div>
+  <nav class="unit-nav" id="unit-nav"></nav>
+</div>
+
+<!-- ══════════════════════════════════
+     主內容區
+══════════════════════════════════ -->
+<div class="main" id="main-area">
+  <div class="topbar">
+    <div class="breadcrumb">橋接單元 › <b id="tb-unit-name"></b></div>
+    <span class="mode-tag" id="mode-tag">課程講義</span>
+  </div>
+
+  <!-- 講義頁 -->
+  <div class="page active" id="page-lesson">
+    <div class="lesson-scroll" id="lesson-content"></div>
+    <div class="lesson-footer">
+      <button class="btn" id="btn-prev" onclick="prevUnit()">‹ 上一單元</button>
+      <button class="btn btn-green" onclick="goToPractice()">
+        ▶ 開始練習（<span id="q-count">0</span> 題）
+      </button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextUnit()">下一單元 ›</button>
+    </div>
+  </div>
+
+  <!-- 練習頁 -->
+  <div class="page" id="page-practice">
+    <div class="practice-header">
+      <div class="q-dots" id="q-dots"></div>
+      <span class="q-counter" id="q-counter"></span>
+    </div>
+    <div class="practice-body" id="practice-body"></div>
+    <div class="practice-footer">
+      <button class="btn" onclick="backToLesson()">‹ 回到講義</button>
+      <button class="btn btn-primary" id="btn-submit" onclick="submitAnswer()">送出答案</button>
+      <button class="btn btn-primary" id="btn-next-q" style="display:none" onclick="nextQuestion()">下一題 ›</button>
+      <button class="btn btn-green" id="btn-result" style="display:none" onclick="showResult()">查看結果</button>
+    </div>
+  </div>
+
+  <!-- 結果頁 -->
+  <div class="page" id="page-result">
+    <div class="result-page">
+      <div style="font-size:13px;color:#888">本單元練習得分</div>
+      <div class="result-score" id="result-score">0%</div>
+      <div class="result-sub" id="result-sub"></div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-btns">
+        <button class="btn" onclick="retryPractice()">再練習一次</button>
+        <button class="btn" onclick="backToLesson()">回到講義</button>
+        <button class="btn btn-primary" onclick="nextUnit()">下一單元 ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   ▼▼▼  可修改區域：課程資料  ▼▼▼
+   每個物件是一個單元，包含 lesson（講義）和 questions（題目）
+   ════════════════════════════════════════════════════════ */
+const COURSE = [
+
+  /* ──────────────────────────────────────────
+     單元 1：從直角三角形出發
+  ────────────────────────────────────────── */
+  {
+    name: '從直角三角形出發',
+    time: '約 20 分鐘',
+    lesson: [
+      { type: 'section', title: '複習：畢氏定理' },
+      { type: 'prose', text: '在直角三角形中，若兩股長為 a、b，斜邊長為 c，則三邊滿足以下關係：' },
+      { type: 'math', tex: 'a^2 + b^2 = c^2' },
+      { type: 'note', label: '記憶方式', text: '斜邊的平方 = 兩股平方的和。斜邊永遠是最長的那條邊。' },
+      { type: 'example', label: '例題', text: '已知直角三角形兩股為 3 和 4，求斜邊。\n解：c² = 3² + 4² = 9 + 16 = 25，所以 c = 5。' },
+
+      { type: 'section', title: '關鍵發現：角度決定比值' },
+      { type: 'prose', text: '考慮兩個角度完全相同的直角三角形（相似三角形），雖然大小不同，但對應邊的比值完全一樣。這個比值只跟角度有關，跟三角形的大小無關。' },
+      { type: 'note', label: '核心洞察', text: '只要角度 θ 固定，不論三角形多大多小，「對邊 ÷ 斜邊」的值永遠相同。這就是為什麼我們可以給這個比值一個名字。' },
+      { type: 'math', tex: '\\frac{\\text{對邊}}{\\text{斜邊}} = \\text{只跟 } \\theta \\text{ 有關的固定值}' },
+
+      { type: 'section', title: '為什麼需要三角比？' },
+      { type: 'prose', text: '如果你想知道一棟建築物的高度，卻只能在地面上測量，怎麼辦？只要測量仰角和你到建築物的距離，再利用三角比，就能算出高度。' },
+      { type: 'steps', items: [
+        '測量你到建築物底部的水平距離 d',
+        '用儀器測量仰角 θ（你的視線與水平面的夾角）',
+        '利用三角比：高度 h = d × tan θ'
+      ]},
+    ],
+    questions: [
+      {
+        type: 'tf',
+        q: '在相似三角形中，對應邊的比值會隨三角形大小不同而改變。',
+        answer: false,
+        hint: '相似三角形的對應邊比值只跟角度有關，與大小無關。'
+      },
+      {
+        type: 'single',
+        q: '直角三角形兩股為 5 和 12，斜邊長為？',
+        opts: ['15', '13', '17', '11'],
+        answer: 1,
+        hint: '5² + 12² = 25 + 144 = 169 = 13²，所以斜邊為 13。'
+      },
+      {
+        type: 'fill',
+        q: '直角三角形兩股為 8 和 6，斜邊長為？',
+        answer: '10',
+        hint: '8² + 6² = 64 + 36 = 100 = 10²，所以斜邊為 10。'
+      },
+      {
+        type: 'match',
+        q: '【配對題】請將下列三角形的斜邊長與正確答案配對：',
+        pairs: [
+          { left: '兩股 3、4', right: '5' },
+          { left: '兩股 5、12', right: '13' },
+          { left: '兩股 8、15', right: '17' },
+          { left: '兩股 7、24', right: '25' },
+        ],
+        hint: '利用畢氏定理 a² + b² = c² 逐一計算。'
+      },
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     單元 2：三角比的定義
+  ────────────────────────────────────────── */
+  {
+    name: '三角比的定義',
+    time: '約 25 分鐘',
+    lesson: [
+      { type: 'section', title: '三個重要比值的名字' },
+      { type: 'prose', text: '在一個直角三角形中，對於角 θ，我們定義以下三個比值：' },
+      { type: 'math', tex: '\\sin\\theta = \\dfrac{\\text{對邊}}{\\text{斜邊}}' },
+      { type: 'math', tex: '\\cos\\theta = \\dfrac{\\text{鄰邊}}{\\text{斜邊}}' },
+      { type: 'math', tex: '\\tan\\theta = \\dfrac{\\text{對邊}}{\\text{鄰邊}}' },
+      { type: 'note', label: '記憶口訣', text: 'SOH CAH TOA\nSin = 對/斜　Cos = 鄰/斜　Tan = 對/鄰' },
+      { type: 'interactive' },
+
+      { type: 'section', title: '特殊角的三角比值' },
+      { type: 'prose', text: '有三個角度的三角比值可以精確計算，是考試必備：' },
+      { type: 'table' },
+      { type: 'example', label: '45° 的推導', text: '等腰直角三角形，兩股均為 1，斜邊 = √2。\nsin 45° = 1/√2 = √2/2，cos 45° = √2/2，tan 45° = 1' },
+      { type: 'example', label: '30° 的推導', text: '邊長為 2 的等邊三角形，畫高後高度 = √3。\n以 30° 角：對邊=1，鄰邊=√3，斜邊=2\nsin 30° = 1/2，cos 30° = √3/2，tan 30° = √3/3' },
+
+      { type: 'section', title: 'tan 與 sin、cos 的關係' },
+      { type: 'math', tex: '\\tan\\theta = \\dfrac{\\sin\\theta}{\\cos\\theta}' },
+      { type: 'example', label: '驗證', text: 'sin 30° = 1/2，cos 30° = √3/2\ntan 30° = (1/2) ÷ (√3/2) = 1/√3 = √3/3  ✓' },
+    ],
+    questions: [
+      {
+        type: 'match',
+        q: '【配對題】請將角度與對應的 sin 值配對：',
+        pairs: [
+          { left: 'sin 30°', right: '1/2' },
+          { left: 'sin 45°', right: '√2/2' },
+          { left: 'sin 60°', right: '√3/2' },
+          { left: 'sin 90°', right: '1' },
+        ],
+        hint: '記憶法：sin 30°/45°/60° 的分子分別是 1、√2、√3（遞增）。'
+      },
+      {
+        type: 'single',
+        q: '在直角三角形中，對邊為 3，斜邊為 5，則 sin θ = ？',
+        opts: ['3/4', '4/5', '3/5', '5/3'],
+        answer: 2,
+        hint: 'sin θ = 對邊 / 斜邊 = 3/5。'
+      },
+      {
+        type: 'single',
+        q: 'tan 45° = ？',
+        opts: ['√3/3', '√2/2', '√3', '1'],
+        answer: 3,
+        hint: 'tan 45° = sin 45° / cos 45° = (√2/2) / (√2/2) = 1。'
+      },
+      {
+        type: 'steps',
+        q: '【計算步驟】在直角三角形中，對邊為 4，鄰邊為 3，請依序求出 sin θ、cos θ、tan θ。',
+        steps: [
+          { label: '斜邊 =', placeholder: '先用畢氏定理求斜邊', answer: '5', hint: '√(4²+3²)=√25=5' },
+          { label: 'sin θ =', placeholder: '對邊 / 斜邊', answer: '4/5', hint: '4÷5=4/5' },
+          { label: 'cos θ =', placeholder: '鄰邊 / 斜邊', answer: '3/5', hint: '3÷5=3/5' },
+          { label: 'tan θ =', placeholder: '對邊 / 鄰邊', answer: '4/3', hint: '4÷3=4/3' },
+        ],
+        hint: '先求斜邊，再逐一代入定義。'
+      },
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     單元 3：基本恆等式
+  ────────────────────────────────────────── */
+  {
+    name: '基本恆等式',
+    time: '約 20 分鐘',
+    lesson: [
+      { type: 'section', title: '畢氏恆等式的推導' },
+      { type: 'prose', text: '設斜邊為 1 的直角三角形，對邊為 sin θ，鄰邊為 cos θ，代入畢氏定理：' },
+      { type: 'math', tex: '(\\sin\\theta)^2 + (\\cos\\theta)^2 = 1^2' },
+      { type: 'math', tex: '\\sin^2\\theta + \\cos^2\\theta = 1' },
+      { type: 'note', label: '最重要的恆等式', text: '不論 θ 是什麼角度，sin²θ + cos²θ 永遠等於 1。這個式子在高中三角函數中會一直用到。' },
+
+      { type: 'section', title: '已知一個比值，求其他兩個' },
+      { type: 'steps', items: [
+        '把已知的值代入 sin²θ + cos²θ = 1',
+        '解方程式求未知值',
+        '確認符號（銳角三角形所有值為正）'
+      ]},
+      { type: 'example', label: '例題', text: '已知 sin θ = 3/5，求 cos θ 和 tan θ。\n解：\n(3/5)² + cos²θ = 1\n9/25 + cos²θ = 1\ncos²θ = 16/25\ncos θ = 4/5\ntan θ = sinθ/cosθ = (3/5)÷(4/5) = 3/4' },
+
+      { type: 'section', title: '互餘角的關係' },
+      { type: 'math', tex: '\\sin(90°-\\theta) = \\cos\\theta' },
+      { type: 'math', tex: '\\cos(90°-\\theta) = \\sin\\theta' },
+      { type: 'note', label: '幾何意義', text: '角 θ 的「對邊」正好是 (90°-θ) 的「鄰邊」，反之亦然。' },
+    ],
+    questions: [
+      {
+        type: 'tf',
+        q: '已知 sin θ = 0.6，則 cos θ = 0.8。',
+        answer: true,
+        hint: '0.6² + cos²θ = 1 → cos²θ = 0.64 → cos θ = 0.8 ✓'
+      },
+      {
+        type: 'steps',
+        q: '【計算步驟】已知 cos θ = 5/13，求 sin θ 和 tan θ。',
+        steps: [
+          { label: 'cos²θ =', placeholder: '先平方', answer: '25/169', hint: '(5/13)²=25/169' },
+          { label: 'sin²θ =', placeholder: '1 - cos²θ', answer: '144/169', hint: '1-25/169=144/169' },
+          { label: 'sin θ =', placeholder: '開根號', answer: '12/13', hint: '√(144/169)=12/13' },
+          { label: 'tan θ =', placeholder: 'sin÷cos', answer: '12/5', hint: '(12/13)÷(5/13)=12/5' },
+        ],
+        hint: '代入 sin²θ + cos²θ = 1，解出 sin θ 後再求 tan θ。'
+      },
+      {
+        type: 'fill',
+        q: 'sin(90° - 40°) = ？（用三角比符號回答）',
+        answer: 'cos 40°',
+        hint: 'sin(90°-θ) = cosθ，代入 θ=40° 得 cos 40°。'
+      },
+      {
+        type: 'single',
+        q: '若 sin θ = 5/13，下列何者正確？',
+        opts: ['tan θ = 5/12', 'cos θ = 8/13', 'tan θ = 5/12 且 cos θ = 12/13', 'cos θ = 12/13'],
+        answer: 3,
+        hint: 'cos²θ = 1 - 25/169 = 144/169，cos θ = 12/13。tan θ = 5/12。'
+      },
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     單元 4：直角三角形應用
+  ────────────────────────────────────────── */
+  {
+    name: '直角三角形應用',
+    time: '約 25 分鐘',
+    lesson: [
+      { type: 'section', title: '仰角與俯角' },
+      { type: 'prose', text: '仰角（elevation）：視線往上看，與水平線的夾角。\n俯角（depression）：視線往下看，與水平線的夾角。' },
+      { type: 'note', label: '解題步驟', text: '① 畫出直角三角形示意圖\n② 標示已知量（角度、邊長）\n③ 選擇適當的三角比\n④ 列式計算' },
+      { type: 'example', label: '例題 1：求高度', text: '小明站在距離一棵樹 20 公尺處，仰角為 30°，求樹的高度。\n解：設樹高 h\n  tan 30° = h / 20\n  h = 20 × tan 30° = 20 × (√3/3) = 20√3/3 ≈ 11.5 公尺' },
+      { type: 'example', label: '例題 2：求距離', text: '從 50 公尺高的懸崖俯瞰海面上的船，俯角為 45°，求船與懸崖底部的水平距離。\n解：設距離 d\n  tan 45° = 50 / d\n  d = 50 / 1 = 50 公尺' },
+
+      { type: 'section', title: '已知兩邊求角度' },
+      { type: 'prose', text: '如果已知兩邊長，先算出三角比的值，再用計算機求角度。' },
+      { type: 'math', tex: '\\text{若 } \\sin\\theta = k，\\text{則 } \\theta = \\sin^{-1}(k)' },
+      { type: 'example', label: '例題', text: '直角三角形的對邊為 4，斜邊為 5，求角 θ。\n解：sin θ = 4/5 = 0.8\n    θ = sin⁻¹(0.8) ≈ 53.1°' },
+    ],
+    questions: [
+      {
+        type: 'steps',
+        q: '【計算步驟】小華站在距牆 10 公尺處，仰角 60° 看到牆頂，求牆高。',
+        steps: [
+          { label: '三角比選擇', placeholder: '用 sin/cos/tan 哪個？', answer: 'tan', hint: '已知鄰邊（距離）和對邊（高度），用 tan。' },
+          { label: 'tan 60° =', placeholder: '特殊角值', answer: '√3', hint: 'tan 60° = √3' },
+          { label: '列式', placeholder: '√3 = h / ?', answer: 'h/10', hint: 'tan 60° = 高/距 = h/10' },
+          { label: '牆高 h =', placeholder: '計算結果', answer: '10√3', hint: 'h = 10 × √3 = 10√3 ≈ 17.3 公尺' },
+        ],
+        hint: '仰角問題：tan θ = 對邊 / 鄰邊 = 高度 / 水平距離。'
+      },
+      {
+        type: 'single',
+        q: '從 30 公尺高的大樓往下看，俯角為 30°，船距大樓底部的水平距離約為？',
+        opts: ['15√3 公尺', '30√3 公尺', '10√3 公尺', '20√3 公尺'],
+        answer: 1,
+        hint: 'tan 30° = 30/d，d = 30/tan30° = 30/(√3/3) = 30√3。'
+      },
+      {
+        type: 'fill',
+        q: '直角三角形中，若 sin θ = 0.5，則 θ = ？度',
+        answer: '30',
+        hint: 'sin 30° = 0.5 = 1/2，所以 θ = 30°。'
+      },
+      {
+        type: 'match',
+        q: '【配對題】請將情境與對應的三角比配對：',
+        pairs: [
+          { left: '已知鄰邊和斜邊，求角', right: 'cos θ = 鄰/斜' },
+          { left: '已知對邊和鄰邊，求角', right: 'tan θ = 對/鄰' },
+          { left: '已知對邊和斜邊，求角', right: 'sin θ = 對/斜' },
+          { left: '已知角和鄰邊，求對邊', right: '對邊 = 鄰邊 × tan θ' },
+        ],
+        hint: '根據已知條件選擇包含這兩個量的三角比公式。'
+      },
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     單元 5：銜接高中的橋
+  ────────────────────────────────────────── */
+  {
+    name: '銜接高中的橋',
+    time: '約 15 分鐘',
+    lesson: [
+      { type: 'section', title: '三角比的限制' },
+      { type: 'prose', text: '目前學的三角比只能用在直角三角形裡，所以角度只能在 0° 到 90° 之間。但現實中常常遇到鈍角、負角，甚至超過 360° 的角。' },
+      { type: 'note', label: '問題來了', text: 'sin 120° 是多少？cos(-30°) 是多少？這些問題在「三角比」的框架下無法回答，需要更強大的定義方式。' },
+
+      { type: 'section', title: '廣義角：把角度放到坐標系上' },
+      { type: 'prose', text: '高中的解法是把角度放進坐標系中。以原點為中心，畫一條長度為 1 的射線，旋轉角度 θ 後，射線端點的坐標就是 (cos θ, sin θ)。' },
+      { type: 'math', tex: '\\cos\\theta = x\\text{（端點橫坐標）}' },
+      { type: 'math', tex: '\\sin\\theta = y\\text{（端點縱坐標）}' },
+      { type: 'prose', text: '這樣定義之後，120°、180°、-30° 甚至 1000° 都能求出 sin 和 cos 的值，不再受直角三角形的限制。' },
+
+      { type: 'section', title: '三角函數：sin θ 是一個函數' },
+      { type: 'prose', text: '在國中，sin θ 是「一個固定角度對應的比值」。到了高中，θ 可以是任何實數，所以 sin θ 變成了一個真正的函數，有自己的圖形和性質。' },
+      { type: 'math', tex: 'f(\\theta) = \\sin\\theta，\\quad \\text{週期 } T = 360° = 2\\pi' },
+      { type: 'note', label: '高一預告', text: '三角函數的圖形像波浪，週期為 360°（2π）。天文、物理、工程中的「週期性現象」都可以用它描述。' },
+      { type: 'finish' },
+    ],
+    questions: [
+      {
+        type: 'tf',
+        q: '在三角比的定義下，sin 120° 是有意義的。',
+        answer: false,
+        hint: '三角比只定義在 0° 到 90° 的直角三角形中，需要廣義角的概念才能處理 120°。'
+      },
+      {
+        type: 'single',
+        q: '廣義角定義中，cos θ 對應到單位圓上端點的哪個坐標？',
+        opts: ['縱坐標 y', '橫坐標 x', '斜邊長', '對邊長'],
+        answer: 1,
+        hint: '廣義角定義：端點坐標為 (cosθ, sinθ)，cos 對應 x（橫坐標）。'
+      },
+      {
+        type: 'fill',
+        q: '三角函數 f(θ) = sin θ 的週期是多少度？',
+        answer: '360',
+        hint: 'sin 函數每 360°（即 2π）重複一次，週期為 360°。'
+      },
+      {
+        type: 'match',
+        q: '【配對題】請將概念與其正確描述配對：',
+        pairs: [
+          { left: '三角比', right: '只適用直角三角形，0°~90°' },
+          { left: '廣義角', right: '用坐標系定義，適用任意角度' },
+          { left: '三角函數', right: 'sin θ 有圖形和週期性' },
+          { left: '畢氏恆等式', right: 'sin²θ + cos²θ = 1' },
+        ],
+        hint: '從三角比到三角函數是一個「從特殊到一般」的擴展過程。'
+      },
+    ]
+  },
+
+];
+/* ════════════════════════════════════════════════════════
+   ▲▲▲  可修改區域結束  ▲▲▲
+   以下為程式邏輯，通常不需要修改
+   ════════════════════════════════════════════════════════ */
+
+let curUnit = 0;
+let curQ    = 0;
+let answers = {};
+let submitted = {};
+const unitDone = new Set();
+
+// ── 初始化 ──────────────────────────────
+function init() {
+  renderSidebar();
+  loadUnit(0);
+}
+
+// ── 側欄 ────────────────────────────────
+function renderSidebar() {
+  const nav = document.getElementById('unit-nav');
+  nav.innerHTML = COURSE.map((u, i) => `
+    <button class="unit-btn ${i===curUnit?'active':''} ${unitDone.has(i)?'done':''}"
+            onclick="loadUnit(${i})">
+      <div class="u-dot ${i===curUnit?'is-active':''} ${unitDone.has(i)?'is-done':''}"></div>
+      ${u.name}
+    </button>`).join('');
+  const n = unitDone.size;
+  document.getElementById('prog-fill').style.width = Math.round(n/COURSE.length*100)+'%';
+  document.getElementById('prog-txt').textContent  = `${n} / ${COURSE.length} 單元完成`;
+}
+
+// ── 載入單元 ────────────────────────────
+function loadUnit(idx) {
+  curUnit = idx;
+  curQ    = 0;
+  answers   = {};
+  submitted = {};
+  renderSidebar();
+  renderLesson();
+  showPage('lesson');
+}
+
+// ── 渲染講義 ────────────────────────────
+function renderLesson() {
+  const u = COURSE[curUnit];
+  document.getElementById('tb-unit-name').textContent = u.name;
+  document.getElementById('q-count').textContent      = u.questions.length;
+  document.getElementById('btn-prev').disabled = curUnit === 0;
+  document.getElementById('mode-tag').textContent     = '課程講義';
+  document.getElementById('mode-tag').className       = 'mode-tag';
+
+  let html = `<div class="lesson-title">${u.name}</div>
+    <div class="lesson-meta"><span>⏱ ${u.time}</span></div>`;
+
+  u.lesson.forEach(b => {
+    if (b.type==='section') {
+      html += `<div class="sec-title">${b.title}</div>`;
+    } else if (b.type==='prose') {
+      html += `<p class="prose">${b.text.replace(/\n/g,'<br>')}</p>`;
+    } else if (b.type==='math') {
+      html += `<div class="math-block" data-tex="${encodeURIComponent(b.tex)}"></div>`;
+    } else if (b.type==='note') {
+      html += `<div class="note-box"><div class="lbl">${b.label}</div><div class="body">${b.text.replace(/\n/g,'<br>')}</div></div>`;
+    } else if (b.type==='example') {
+      html += `<div class="example-box"><div class="lbl">${b.label}</div><div class="body">${b.text}</div></div>`;
+    } else if (b.type==='steps') {
+      html += `<div class="steps-list">${b.items.map((s,i)=>`<div class="step-item"><div class="step-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>`;
+    } else if (b.type==='interactive') {
+      html += `<div class="interact-wrap" id="interact-tri">
+        <div class="slider-row">
+          <label>角度 θ</label>
+          <input type="range" min="10" max="80" value="30" oninput="updateTri(this.value)">
+          <span id="tri-deg">30°</span>
+        </div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+          <canvas id="tri-canvas" width="180" height="160" style="border-radius:8px;background:#f0f0ec"></canvas>
+          <div class="tri-vals" id="tri-vals"></div>
+        </div>
+      </div>`;
+    } else if (b.type==='table') {
+      html += `<table class="ratio-table">
+        <thead><tr><th>角度 θ</th><th>sin θ</th><th>cos θ</th><th>tan θ</th></tr></thead>
+        <tbody>
+          <tr><td>30°</td><td>1/2</td><td>√3/2</td><td>√3/3</td></tr>
+          <tr><td>45°</td><td>√2/2</td><td>√2/2</td><td>1</td></tr>
+          <tr><td>60°</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:11px;color:#888;margin-top:5px">記憶法：sin 30°/45°/60° 分子分別是 1、√2、√3（遞增），cos 正好相反。</div>`;
+    } else if (b.type==='finish') {
+      html += `<div class="finish-banner">✓ 恭喜完成橋接單元！你已具備進入高中三角函數的所有基礎。</div>`;
+    }
+  });
+
+  document.getElementById('lesson-content').innerHTML = html;
+
+  // 渲染 KaTeX
+  document.querySelectorAll('[data-tex]').forEach(el => {
+    try { katex.render(decodeURIComponent(el.dataset.tex), el, {displayMode:true, throwOnError:false}); }
+    catch(e) { el.textContent = decodeURIComponent(el.dataset.tex); }
+  });
+
+  // 互動三角形
+  if (document.getElementById('tri-canvas')) updateTri(30);
+}
+
+// ── 互動三角形 ──────────────────────────
+function updateTri(deg) {
+  document.getElementById('tri-deg').textContent = deg + '°';
+  const canvas = document.getElementById('tri-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=180, H=160, pad=22;
+  ctx.clearRect(0,0,W,H);
+  const rad = deg * Math.PI / 180;
+  const hyp = 120;
+  const ox=pad, oy=H-pad;
+  const ex = ox + hyp*Math.cos(rad);
+  const ey = oy - hyp*Math.sin(rad);
+
+  ctx.strokeStyle='#185FA5'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ex,ey); ctx.lineTo(ex,oy); ctx.closePath(); ctx.stroke();
+
+  ctx.strokeStyle='#999'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(ex-7,oy); ctx.lineTo(ex-7,oy-7); ctx.lineTo(ex,oy-7); ctx.stroke();
+
+  ctx.strokeStyle='#7F77DD'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(ox,oy,18,0,-rad,true); ctx.stroke();
+
+  ctx.fillStyle='#7F77DD'; ctx.font='11px system-ui'; ctx.fillText('θ', ox+20, oy-5);
+  ctx.fillStyle='#185FA5'; ctx.textAlign='center';
+  ctx.fillText('斜邊', (ox+ex)/2-8, (oy+ey)/2-4);
+  ctx.fillStyle='#EF9F27';
+  ctx.fillText('鄰邊', (ox+ex)/2, oy+14);
+  ctx.fillStyle='#E24B4A';
+  ctx.fillText('對邊', ex+16, (oy+ey)/2);
+  ctx.textAlign='left';
+
+  const s=Math.sin(rad), c=Math.cos(rad), t=Math.tan(rad);
+  document.getElementById('tri-vals').innerHTML =
+    `<div style="color:#E24B4A"><b>sin ${deg}°</b> = ${s.toFixed(4)}</div>
+     <div style="color:#EF9F27"><b>cos ${deg}°</b> = ${c.toFixed(4)}</div>
+     <div style="color:#7F77DD"><b>tan ${deg}°</b> = ${t.toFixed(4)}</div>
+     <div style="font-size:11px;color:#888;margin-top:6px">sin²+cos² = ${(s*s+c*c).toFixed(4)}</div>`;
+}
+
+// ── 練習題 ──────────────────────────────
+function goToPractice() {
+  curQ = 0; answers = {}; submitted = {};
+  document.getElementById('mode-tag').textContent = '練習模式';
+  document.getElementById('mode-tag').className   = 'mode-tag practice-mode';
+  showPage('practice');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const qs = COURSE[curUnit].questions;
+  const q  = qs[curQ];
+  const key = curQ;
+  const done = !!submitted[key];
+  const ua   = answers[key];
+
+  // 進度點
+  document.getElementById('q-dots').innerHTML = qs.map((_,i) => {
+    let cls = '';
+    if (submitted[i]) cls = checkAnswer(i,qs[i]) ? 'q-correct' : 'q-wrong';
+    else if (i===curQ) cls = 'q-current';
+    return `<div class="q-dot ${cls}"></div>`;
+  }).join('');
+  document.getElementById('q-counter').textContent = `第 ${curQ+1} 題 / 共 ${qs.length} 題`;
+
+  const badgeMap = {single:'badge-single 單選題',multi:'badge-multi 多選題',
+    fill:'badge-fill 填空題',tf:'badge-tf 是非題',
+    match:'badge-match 配對題',steps:'badge-steps 計算步驟'};
+  const [badgeCls, badgeTxt] = (badgeMap[q.type]||'badge-fill 未知').split(' ');
+
+  let inputHtml = '';
+
+  if (q.type==='single') {
+    inputHtml = `<div class="options">${q.opts.map((o,i) => {
+      let cls = done ? (i===q.answer?'correct':ua===i?'wrong':'disabled') : (ua===i?'selected':'');
+      return `<div class="option ${cls}" onclick="pickSingle(${i})">
+        <div class="opt-key">${String.fromCharCode(65+i)}</div><span>${o}</span></div>`;
+    }).join('')}</div>`;
+
+  } else if (q.type==='tf') {
+    const tc = done?(q.answer===true?(ua===true?'correct':''):(ua===true?'wrong':'')):(ua===true?'selected':'');
+    const fc = done?(q.answer===false?(ua===false?'correct':''):(ua===false?'wrong':'')):(ua===false?'selected':'');
+    inputHtml = `<div class="tf-row">
+      <div class="tf-btn ${tc} ${done?'disabled':''}" onclick="pickTF(true)">○ 正確</div>
+      <div class="tf-btn ${fc} ${done?'disabled':''}" onclick="pickTF(false)">✕ 錯誤</div>
+    </div>`;
+
+  } else if (q.type==='fill') {
+    const fillCls = done ? (checkAnswer(key,q)?'correct':'wrong') : '';
+    inputHtml = `<input class="fill-input ${fillCls}" id="fill-main"
+      placeholder="輸入答案..." value="${done?(ua||''):''}" ${done?'disabled':''}
+      oninput="answers[${key}]=this.value">`;
+
+  } else if (q.type==='match') {
+    // 配對題佔位符
+    inputHtml = `<div class="placeholder-box">
+      <b>配對題（佔位符）</b>
+      此題型介面建置中，目前列出配對內容供參考：<br><br>
+      ${q.pairs.map((p,i)=>`<div style="text-align:left;margin:4px 0;font-size:12px"><b>${p.left}</b> → ${p.right}</div>`).join('')}
+      <br><div style="font-size:11px">提示：${q.hint}</div>
+    </div>`;
+
+  } else if (q.type==='steps') {
+    inputHtml = `<div class="steps-q">${q.steps.map((s,i) => {
+      const sv = (answers[key]||{})[i];
+      const sdone = done || !!(submitted[key]);
+      let cls = '';
+      if (sdone) cls = (sv||'').trim()===s.answer.trim()?'correct':'wrong';
+      return `<div class="step-q-item">
+        <span class="step-q-label">步驟${i+1}　${s.label}</span>
+        <input class="step-q-input ${cls}" placeholder="${s.placeholder}"
+          value="${sv||''}" ${sdone?'disabled':''}
+          oninput="setStepAns(${i},this.value)">
+        ${sdone?`<span class="step-q-hint">${s.hint}</span>`:''}
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  let feedbackHtml = '';
+  if (done) {
+    const ok = checkAnswer(key, q);
+    feedbackHtml = `<div class="feedback show ${ok?'ok':'err'}">
+      <strong>${ok?'✓ 答對了！':'✗ 答錯了。'}</strong>　${q.hint}
+    </div>`;
+  }
+
+  const isLast = curQ === qs.length - 1;
+  document.getElementById('btn-submit').style.display   = done ? 'none' : '';
+  document.getElementById('btn-next-q').style.display   = (done && !isLast) ? '' : 'none';
+  document.getElementById('btn-result').style.display   = (done && isLast)  ? '' : 'none';
+
+  document.getElementById('practice-body').innerHTML = `
+    <div class="q-num">Q${curQ+1}</div>
+    <div class="q-type-badge ${badgeCls}">${badgeTxt}</div>
+    <div class="q-text">${q.q}</div>
+    ${inputHtml}
+    ${feedbackHtml}`;
+}
+
+function pickSingle(i)  { if(submitted[curQ]) return; answers[curQ]=i;    renderQuestion(); }
+function pickTF(v)      { if(submitted[curQ]) return; answers[curQ]=v;    renderQuestion(); }
+function setStepAns(i,v){ if(!answers[curQ]) answers[curQ]={}; answers[curQ][i]=v; }
+
+function checkAnswer(key, q) {
+  const ua = answers[key];
+  if (q.type==='fill') return (ua||'').trim().toLowerCase() === q.answer.trim().toLowerCase();
+  if (q.type==='tf'||q.type==='single') return ua === q.answer;
+  if (q.type==='match') return true; // 佔位符預設通過
+  if (q.type==='steps') {
+    return q.steps.every((s,i)=> ((ua||{})[i]||'').trim()===s.answer.trim());
+  }
+  return false;
+}
+
+function submitAnswer() {
+  const q = COURSE[curUnit].questions[curQ];
+  if (q.type==='fill') {
+    const el = document.getElementById('fill-main');
+    if (el) answers[curQ] = el.value.trim();
+    if (!answers[curQ]) return;
+  }
+  if (q.type==='steps') { /* 允許部分填寫也能送出 */ }
+  else if (answers[curQ]===undefined) return;
+  submitted[curQ] = true;
+  renderQuestion();
+}
+
+function nextQuestion() { curQ++; renderQuestion(); }
+
+function showResult() {
+  unitDone.add(curUnit);
+  renderSidebar();
+  const qs = COURSE[curUnit].questions;
+  let correct = 0;
+  qs.forEach((q,i) => { if(checkAnswer(i,q)) correct++; });
+  const pct = Math.round(correct/qs.length*100);
+  document.getElementById('result-score').textContent = pct+'%';
+  document.getElementById('result-sub').textContent   = `${correct} / ${qs.length} 題答對`;
+  document.getElementById('result-msg').textContent   =
+    pct>=80 ? '非常好！繼續下一個單元吧。' : pct>=60 ? '不錯！建議複習一下講義。' : '建議重新閱讀講義後再挑戰。';
+  showPage('result');
+}
+
+function retryPractice() { goToPractice(); }
+function backToLesson()  { showPage('lesson'); document.getElementById('mode-tag').textContent='課程講義'; document.getElementById('mode-tag').className='mode-tag'; }
+function prevUnit()  { if(curUnit>0) loadUnit(curUnit-1); }
+function nextUnit()  { if(curUnit<COURSE.length-1) loadUnit(curUnit+1); }
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+}
+
+init();
+</script>
+</body>
+</html>
