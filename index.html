@@ -1,7 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+<script src="https://cdn.geogebra.org/apps/deployggb.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>從三角比到三角函數｜橋接單元</title>
@@ -145,6 +145,24 @@ a{color:#185FA5}
 .fill-input:focus{border-color:#185FA5}
 .fill-input.correct{border-color:#1D9E75;background:#E1F5EE;color:#085041}
 .fill-input.wrong{border-color:#E24B4A;background:#FCEBEB;color:#791F1F}
+<div id="math-input"></div>
+
+<script>
+var params = {
+  appName: "evaluator",        // 只顯示輸入框+鍵盤
+  width: 600,
+  height: 80,
+  keyboardType: "scientific",  // 就是你截圖的那個鍵盤
+  showToolBar: false,
+  showMenuBar: false,
+  showAlgebraInput: false,
+  language: "zh-TW",
+};
+var applet = new GGBApplet(params, true);
+window.addEventListener("load", function() {
+  applet.inject('math-input');
+});
+</script>
 
 /* 是非 */
 .tf-row{display:flex;gap:10px;margin-bottom:16px;max-width:300px}
